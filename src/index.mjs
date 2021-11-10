@@ -1,6 +1,20 @@
 import * as readline from "readline";
 import * as fs from "fs";
 
+let processedFiles = 0;
+
+function mergeOutputs(files) {
+
+	const mergedOutputPath = "./outputs/merged.csv";
+	if (fs.existsSync(mergedOutputPath))
+		fs.unlinkSync(mergedOutputPath);
+
+	for (const file of files) {
+		fs.appendFileSync(mergedOutputPath, fs.readFileSync(`./outputs/${file}`));
+	}
+
+}
+
 function processFile(inputFile, year, startingMonth) {
 	const reader = readline.createInterface(fs.createReadStream(`./inputs/${inputFile}`));
 
@@ -21,6 +35,9 @@ function processFile(inputFile, year, startingMonth) {
 			date.setHours(0, 0, 0, 0);
 			date.setFullYear(year, startingMonth + nextMonthIndex, parseInt(csv[monthOffset + 1]));
 
+			if (csv[monthOffset + 2] === undefined)
+				console.log("Undefined activity found in file", inputFile, csv.join(","));
+
 			if (!isNaN(date))
 				outWriter.write(`${date.toISOString()},${csv[monthOffset + 2]}\n`);
 
@@ -29,8 +46,16 @@ function processFile(inputFile, year, startingMonth) {
 
 	});
 
-	reader.on("close", () => outWriter.end());
+	reader.on("close", () => {
+		outWriter.end();
+		processedFiles++;
+
+		if (processedFiles === manifest.length)
+			mergeOutputs(manifest.map(e => e.file));
+	});
 }
+
+
 
 if (!fs.existsSync("./outputs"))
 	fs.mkdirSync("./outputs");
