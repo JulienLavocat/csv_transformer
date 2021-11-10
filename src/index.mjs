@@ -35,4 +35,10 @@ function processFile(inputFile, year, startingMonth) {
 if (!fs.existsSync("./outputs"))
 	fs.mkdirSync("./outputs");
 
-processFile("alternance_2022_1.csv", 2022, 0);
+const manifest = JSON.parse(fs.readFileSync("./inputs/manifest.json").toString());
+
+manifest.forEach(({
+	file,
+	year,
+	startingMonth
+}) => processFile(file, year, startingMonth));
