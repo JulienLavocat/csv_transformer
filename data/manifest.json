@@ -1,0 +1,17 @@
+[
+	{
+		"file": "alternance_2021_2.csv",
+		"year": 2021,
+		"startingMonth": 6
+	},
+	{
+		"file": "alternance_2022_1.csv",
+		"year": 2022,
+		"startingMonth": 0
+	},
+	{
+		"file": "alternance_2022_2.csv",
+		"year": 2022,
+		"startingMonth": 6
+	}
+]
