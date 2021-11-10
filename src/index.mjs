@@ -35,11 +35,13 @@ function processFile(inputFile, year, startingMonth) {
 			date.setHours(0, 0, 0, 0);
 			date.setFullYear(year, startingMonth + nextMonthIndex, parseInt(csv[monthOffset + 1]));
 
-			if (csv[monthOffset + 2] === undefined)
+			const activity = csv[monthOffset + 2];
+
+			if (activity === undefined)
 				console.log("Undefined activity found in file", inputFile, csv.join(","));
 
-			if (!isNaN(date))
-				outWriter.write(`${date.toISOString()},${csv[monthOffset + 2]}\n`);
+			if (!isNaN(date) && activity !== "")
+				outWriter.write(`${date.toISOString()},${activity}\n`);
 
 			monthOffset += 4;
 		}
