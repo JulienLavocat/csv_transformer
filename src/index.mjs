@@ -1,39 +1,38 @@
 import * as readline from "readline";
-import {
-	createReadStream,
-	createWriteStream,
-	unlinkSync
-} from "fs";
+import * as fs from "fs";
 
-const fileName = "alternance_2022.csv";
+function processFile(inputFile, year, startingMonth) {
+	const reader = readline.createInterface(fs.createReadStream(`./inputs/${inputFile}`));
 
-const reader = readline.createInterface(createReadStream("./data/alternance_2022.csv"));
+	const outputPath = `./outputs/${inputFile}`;
 
-const year = 2022;
-const statingMonth = 0;
+	if (fs.existsSync(outputPath))
+		fs.unlinkSync(outputPath);
+	const outWriter = fs.createWriteStream(outputPath);
 
-unlinkSync("./out/" + fileName);
-const outWriter = createWriteStream("./out/" + fileName)
+	reader.on("line", (line) => {
+		const csv = line.split(",");
 
-reader.on("line", (line) => {
-	const csv = line.split(",");
+		// REMEMBER: We read the n day of each month PER LINE
 
-	// REMEMBER: We read the n day of each month PER LINE
+		let monthOffset = 0;
+		for (let nextMonthIndex = 0; nextMonthIndex < 6; nextMonthIndex++) {
+			const date = new Date();
+			date.setHours(0, 0, 0, 0);
+			date.setFullYear(year, startingMonth + nextMonthIndex, parseInt(csv[monthOffset + 1]));
 
-	let monthOffset = 0;
-	for (let nextMonthIndex = 0; nextMonthIndex < 6; nextMonthIndex++) {
-		const date = new Date();
-		date.setHours(0, 0, 0, 0);
-		date.setFullYear(year, statingMonth + nextMonthIndex, parseInt(csv[monthOffset + 1]));
+			if (!isNaN(date))
+				outWriter.write(`${date.toISOString()},${csv[monthOffset + 2]}\n`);
 
-		console.log(date.toLocaleDateString(), csv[monthOffset + 2]);
+			monthOffset += 4;
+		}
 
-		if (!isNaN(date))
-			outWriter.write(`${date.toISOString()},${csv[monthOffset + 2]}\n`);
+	});
 
-		monthOffset += 4;
-	}
+	reader.on("close", () => outWriter.end());
+}
 
-});
+if (!fs.existsSync("./outputs"))
+	fs.mkdirSync("./outputs");
 
-reader.on("close", () => outWriter.end());
+processFile("alternance_2022_1.csv", 2022, 0);
